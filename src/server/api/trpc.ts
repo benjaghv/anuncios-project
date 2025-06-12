@@ -12,9 +12,10 @@ import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { type Session } from "next-auth";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { getServerSession } from "next-auth";
+
 
 /**
  * 1. CONTEXT
@@ -145,16 +146,42 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure
-  .use(timingMiddleware)
-  .use(({ ctx, next }) => {
-    if (!ctx.session || !ctx.session.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    return next({
-      ctx: {
-        // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
-      },
-    });
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  console.log(ctx);
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      session: ctx.session,
+    },
   });
+});
+
+
+// export const adminProcedure = t.procedure.use(async({ ctx, next }) => {
+//   if (!ctx.session || !ctx.session.user) {
+//     throw new TRPCError({ code: "UNAUTHORIZED" });
+//   }
+
+//  const infoAdicional = await ctx.db.user.findFirst({
+//   where: {
+//     email: ctx.session.user.email,
+//   },
+//   select: {
+//     isAdmin: true,
+//   }
+//  });
+
+//  if (!infoAdicional.isAdmin || !infoAdicional) {
+//   throw new TRPCError({ code: "UNAUTHORIZED" });
+//  }
+// return next({
+//   ctx: {
+//     session: ctx.session,
+//   },
+//   });
+// })
+
+

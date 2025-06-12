@@ -10,6 +10,7 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
+import CognitoProvider from "next-auth/providers/cognito";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -49,10 +50,13 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    CognitoProvider({
+      clientId: process.env.COGNITO_CLIENT_ID!,
+      clientSecret: process.env.COGNITO_CLIENT_SECRET!,
+      issuer: process.env.COGNITO_ISSUER!, 
     }),
+  ],
+
     /**
      * ...add more providers here.
      *
@@ -62,7 +66,7 @@ export const authOptions: NextAuthOptions = {
      *
      * @see https://next-auth.js.org/providers/github
      */
-  ],
+  
 };
 
 /**
