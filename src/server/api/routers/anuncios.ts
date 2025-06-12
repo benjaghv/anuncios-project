@@ -3,8 +3,16 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/
 import { db } from "~/server/db";
 
 export const anunciosRouter = createTRPCRouter({
+
   getAll: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.anuncio.findMany({
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
   }),
@@ -28,7 +36,11 @@ export const anunciosRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.anuncio.create({
-        data: input,
+        data: {
+          ...input,
+          userId: ctx.session.user.id,
+        },
+
       });
     }),
 

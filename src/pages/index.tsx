@@ -17,6 +17,9 @@ interface Anuncio {
   titulo: string;
   descripcion: string;
   estado: boolean;
+  user?: {
+    email: string;
+  };
 }
 
 export default function Home() {
@@ -30,6 +33,7 @@ export default function Home() {
 
   const DATA = api.anuncios.getAll.useQuery(
     undefined,
+
     {
       // staleTime: Infinity,
       refetchOnWindowFocus: false,
@@ -37,13 +41,15 @@ export default function Home() {
       refetchOnReconnect: false,
       gcTime: 0,
     }
-  ); 
+  );
+
 
   const { data: anuncioToEdit } = api.anuncios.getById.useQuery(
     { id: editId!, email: session?.user?.email ?? "_" },
-    { enabled: !!editId,
+    {
+      enabled: !!editId,
       staleTime: 20000,
-     }
+    }
   );
 
 
@@ -226,7 +232,7 @@ export default function Home() {
 
         </Group>
 
-       
+
 
 
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
@@ -239,6 +245,8 @@ export default function Home() {
               estado={anuncio.estado}
               onDelete={handleDelete}
               onEdit={(id) => setEditId(id)}
+              user={anuncio.user}
+              sessionUserEmail={session?.user?.email ?? ""}
             />
           ))}
         </SimpleGrid>

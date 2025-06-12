@@ -160,19 +160,26 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 });
 
 
-// export const adminProcedure = t.procedure.use(async({ ctx, next }) => {
-//   if (!ctx.session || !ctx.session.user) {
-//     throw new TRPCError({ code: "UNAUTHORIZED" });
-//   }
+export const adminProcedure = t.procedure.use(async({ ctx, next }) => {
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
 
-//  const infoAdicional = await ctx.db.user.findFirst({
-//   where: {
-//     email: ctx.session.user.email,
-//   },
-//   select: {
-//     isAdmin: true,
-//   }
-//  });
+ const infoAdicional = await ctx.db.user.findFirst({
+  where: {
+    email: ctx.session.user.email,
+  },
+  select: {
+    isAdmin: true,
+  }
+ });
+
+ return next({
+  ctx: {
+    session: ctx.session,
+  },
+ });
+})
 
 //  if (!infoAdicional.isAdmin || !infoAdicional) {
 //   throw new TRPCError({ code: "UNAUTHORIZED" });

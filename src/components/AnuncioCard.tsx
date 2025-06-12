@@ -6,11 +6,26 @@ interface AnuncioCardProps {
   titulo: string;
   descripcion: string;
   estado: boolean;
+  user?: {
+    email: string;
+  };
+  sessionUserEmail?: string;
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
 }
 
-export function AnuncioCard({ id, titulo, descripcion, estado, onDelete, onEdit }: AnuncioCardProps) {
+export function AnuncioCard({
+  id,
+  titulo,
+  descripcion,
+  estado,
+  user,
+  sessionUserEmail,
+  onDelete,
+  onEdit
+}: AnuncioCardProps) {
+  const isAuthor = sessionUserEmail && user?.email === sessionUserEmail;
+
   const router = useRouter();
 
   return (
@@ -27,24 +42,20 @@ export function AnuncioCard({ id, titulo, descripcion, estado, onDelete, onEdit 
       <Text size="sm" c="dimmed" mb="md">
         {descripcion}
       </Text>
+      <Text size="sm" c="dimmed" mb="sm  ">
+        Publicado por: {user?.email ?? "Desconocido"}
+      </Text>
 
-
-      <Group>
-        <Button 
-          variant="light" 
-          color="blue" 
-          onClick={() => onEdit?.(id)}
-        >
-          Editar
-        </Button>
-        <Button 
-          variant="light" 
-          color="red" 
-          onClick={() => onDelete?.(id)}
-        >
-          Eliminar
-        </Button>
-      </Group>
+      {isAuthor && (
+        <Group>
+          <Button variant="light" color="blue" onClick={() => onEdit?.(id)}>
+            Editar
+          </Button>
+          <Button variant="light" color="red" onClick={() => onDelete?.(id)}>
+            Eliminar
+          </Button>
+        </Group>
+      )}
     </Card>
   );
 } 
